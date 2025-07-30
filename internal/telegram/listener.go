@@ -42,17 +42,17 @@ func (l *Listener) Run() {
 
 			req, err := l.parseUpdate(update)
 			if err != nil {
-				log.Println(fmt.Sprintf("parse update: %v", err))
+				log.Printf("parse update: %v\n", err)
 			}
 
 			resp, err := l.bot.Process(req)
 			if err != nil {
-				log.Println(fmt.Sprintf("process: %v", err))
+				log.Printf("process: %v\n", err)
 			}
 
 			err = l.sendResponse(resp)
 			if err != nil {
-				log.Println(fmt.Sprintf("send response: %v", err))
+				log.Printf("send response: %v\n", err)
 			}
 		}
 	}
@@ -91,7 +91,7 @@ func downloadVoice(url string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("http get: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	buf := bytes.NewBuffer(make([]byte, 0, resp.ContentLength))
 	_, err = io.Copy(buf, resp.Body)
 	if err != nil {
