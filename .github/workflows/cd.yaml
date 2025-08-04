@@ -1,0 +1,45 @@
+name: cd pipeline
+
+on:
+  push:
+    branches: [ 'master' ]
+    tags: [ 'v*' ]
+
+env:
+  VOSK_PATH: "${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
+  LD_LIBRARY_PATH: "${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
+  CGO_CPPFLAGS: "-I ${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
+  CGO_LDFLAGS: "-L ${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: tag-version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ steps.tag-version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest

@@ -1,12 +1,7 @@
-name: Go Pipeline
+name: ci pipeline
 
 on:
-  push:
-    branches: [ master, dev ]
-  pull_request:
-    branches: [ master, dev ]
-  create:
-    tags: [ 'v*' ]  # Trigger deploy on semantic version tags
+  push
 
 env:
   VOSK_PATH: "${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
