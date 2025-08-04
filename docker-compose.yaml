@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  app:
+    image: ghcr.io/vess812/copium-robot:latest
+    container_name: app
+    restart: unless-stopped
+    volumes:
+      - /var/copium-robot/vosk-model-small-ru-0.22:/var/copium-robot/model

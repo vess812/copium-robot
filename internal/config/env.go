@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	ModelPath        string `envconfig:"MODEL_PATH" default:"model"`
+	ModelPath        string `envconfig:"MODEL_PATH" required:"true"`
 	TelegramBotToken string `envconfig:"TELEGRAM_BOT_TOKEN" required:"true"`
 }
 
