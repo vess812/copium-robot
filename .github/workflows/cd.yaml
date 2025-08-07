@@ -2,18 +2,12 @@ name: cd pipeline
 
 on:
   push:
-    branches: [ 'master' ]
     tags: [ 'v*' ]
-
-env:
-  VOSK_PATH: "${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
-  LD_LIBRARY_PATH: "${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
-  CGO_CPPFLAGS: "-I ${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
-  CGO_LDFLAGS: "-L ${{ github.workspace }}/pkg/vosk-linux-x86_64-0.3.45"
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    needs: lint
     permissions:
       contents: read
       packages: write
