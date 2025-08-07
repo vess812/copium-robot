@@ -8,19 +8,19 @@ import (
 	"log"
 	"net/http"
 
-	"copium-bot/internal/models"
+	"copium-bot/internal/domain"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Opts struct {
 	API *tgbotapi.BotAPI
-	Bot models.Bot
+	Bot domain.Bot
 }
 
 type Listener struct {
 	api *tgbotapi.BotAPI
-	bot models.Bot
+	bot domain.Bot
 }
 
 func NewListener(opts Opts) *Listener {
@@ -58,35 +58,53 @@ func (l *Listener) Run() {
 	}
 }
 
-func (l *Listener) parseUpdate(u tgbotapi.Update) (models.BotRequest, error) {
-	r := models.BotRequest{
-		User: models.User{
+func (l *Listener) parseUpdate(u tgbotapi.Update) (domain.BotRequest, error) {
+	r := domain.BotRequest{
+		User: domain.User{
 			ID:   u.Message.From.ID,
 			Name: u.Message.From.UserName,
 		},
-		Message: models.Message{
+		Message: domain.Message{
 			ID:     int64(u.Message.MessageID),
 			ChatID: u.Message.Chat.ID,
 			Text:   u.Message.Text,
 		},
 	}
 
-	if u.Message.Voice != nil {
-		f, err := l.api.GetFile(tgbotapi.FileConfig{FileID: u.Message.Voice.FileID})
-		if err != nil {
-			return models.BotRequest{}, fmt.Errorf("get file: %w", err)
+	if u.Message.Voice != nil || u.Message.VideoNote != nil {
+		switch {
+		case u.Message.Voice != nil:
+			data, err := l.downloadTelegramFile(u.Message.Voice.FileID)
+			if err != nil {
+				return r, err
+			}
+			r.Message.Voice = data
+		case u.Message.VideoNote != nil:
+			data, err := l.downloadTelegramFile(u.Message.VideoNote.FileID)
+			if err != nil {
+				return r, err
+			}
+			r.Message.VideoNote = data
 		}
-		voice, err := downloadVoice(fmt.Sprintf("https://api.telegram.org/file/bot%s/%s", l.api.Token, f.FilePath))
-		if err != nil {
-			return models.BotRequest{}, fmt.Errorf("download voice: %w", err)
-		}
-		r.Message.Voice = voice
 	}
 
 	return r, nil
 }
 
-func downloadVoice(url string) ([]byte, error) {
+func (l *Listener) downloadTelegramFile(fileID string) ([]byte, error) {
+	f, err := l.api.GetFile(tgbotapi.FileConfig{FileID: fileID})
+	if err != nil {
+		return nil, fmt.Errorf("get file: %w", err)
+	}
+	data, err := downloadFile(fmt.Sprintf("https://api.telegram.org/file/bot%s/%s", l.api.Token, f.FilePath))
+	if err != nil {
+		return nil, fmt.Errorf("download voice: %w", err)
+	}
+
+	return data, nil
+}
+
+func downloadFile(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("http get: %w", err)
@@ -100,7 +118,7 @@ func downloadVoice(url string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (l *Listener) sendResponse(r models.BotResponse) error {
+func (l *Listener) sendResponse(r domain.BotResponse) error {
 	if r.ChatID == 0 {
 		return nil
 	}

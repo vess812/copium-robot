@@ -3,39 +3,39 @@ package bot
 import (
 	"fmt"
 
-	"copium-bot/internal/models"
+	"copium-bot/internal/domain"
 )
 
 type Opts struct {
-	VoiceBot *Voice
+	Transcriber *Transcriber
 }
 
 type Bot struct {
-	voice *Voice
+	transcriber *Transcriber
 }
 
 func NewBot(opts Opts) *Bot {
-	return &Bot{voice: opts.VoiceBot}
+	return &Bot{transcriber: opts.Transcriber}
 }
 
-func (b *Bot) Process(r models.BotRequest) (models.BotResponse, error) {
+func (b *Bot) Process(r domain.BotRequest) (domain.BotResponse, error) {
 	if !validRequest(r) {
-		return models.BotResponse{}, fmt.Errorf("invalid request")
+		return domain.BotResponse{}, fmt.Errorf("invalid request")
 	}
 
 	switch {
 	case r.Message.Voice != nil:
-		resp, err := b.voice.Process(r)
+		resp, err := b.transcriber.Process(r)
 		if err != nil {
-			return models.BotResponse{}, fmt.Errorf("voice: %w", err)
+			return domain.BotResponse{}, fmt.Errorf("transcriber: %w", err)
 		}
 		return resp, nil
 	default:
-		return models.BotResponse{}, nil
+		return domain.BotResponse{}, nil
 	}
 }
 
-func validRequest(r models.BotRequest) bool {
+func validRequest(r domain.BotRequest) bool {
 	switch {
 	case r.User.ID == 0:
 		return false

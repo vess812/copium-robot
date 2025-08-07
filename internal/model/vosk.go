@@ -1,4 +1,4 @@
-package transcribe
+package model
 
 import (
 	"encoding/json"
@@ -11,19 +11,19 @@ type Opts struct {
 	ModelPath string
 }
 
-type Transcriber struct {
+type VoskModel struct {
 	opts  Opts
 	model *vosk.VoskModel
 }
 
-func NewTranscriber(opts Opts) (*Transcriber, error) {
+func NewVoskModel(opts Opts) (*VoskModel, error) {
 	vosk.SetLogLevel(0)
 	model, err := vosk.NewModel(opts.ModelPath)
 	if err != nil {
 		return nil, fmt.Errorf("vosk model init: %w", err)
 	}
 
-	return &Transcriber{
+	return &VoskModel{
 		opts:  opts,
 		model: model,
 	}, nil
@@ -37,7 +37,7 @@ type recognitionResult struct {
 	Text string `json:"text"`
 }
 
-func (t *Transcriber) Transcribe(input []byte) (string, error) {
+func (t *VoskModel) Transcribe(input []byte) (string, error) {
 	rec, err := vosk.NewRecognizer(t.model, sampleRate)
 	if err != nil {
 		return "", fmt.Errorf("new recognizer: %w", err)

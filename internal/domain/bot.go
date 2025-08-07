@@ -1,4 +1,4 @@
-package models
+package domain
 
 type Bot interface {
 	Process(request BotRequest) (BotResponse, error)
@@ -13,8 +13,9 @@ type Message struct {
 	ID     int64
 	ChatID int64
 
-	Text  string
-	Voice []byte
+	Text      string
+	Voice     []byte
+	VideoNote []byte
 }
 
 type BotRequest struct {
