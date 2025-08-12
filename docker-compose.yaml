@@ -1,9 +1,10 @@
-version: '3.8'
-
 services:
   app:
     image: ghcr.io/vess812/copium-robot:latest
     container_name: app
     restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      MODEL_PATH: ${MODEL_PATH}
     volumes:
       - /var/copium-robot/vosk-model-small-ru-0.22:/var/copium-robot/model

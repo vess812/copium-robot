@@ -7,11 +7,11 @@ import (
 )
 
 type Opts struct {
-	Transcriber *Transcriber
+	Transcriber domain.Bot
 }
 
 type Bot struct {
-	transcriber *Transcriber
+	transcriber domain.Bot
 }
 
 func NewBot(opts Opts) *Bot {
@@ -24,7 +24,7 @@ func (b *Bot) Process(r domain.BotRequest) (domain.BotResponse, error) {
 	}
 
 	switch {
-	case r.Message.Voice != nil:
+	case r.Message.Voice != nil || r.Message.VideoNote != nil:
 		resp, err := b.transcriber.Process(r)
 		if err != nil {
 			return domain.BotResponse{}, fmt.Errorf("transcriber: %w", err)
