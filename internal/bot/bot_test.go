@@ -13,23 +13,23 @@ type mockTranscriber struct {
 	mock.Mock
 }
 
-func (m *mockTranscriber) Process(r domain.BotRequest) (domain.BotResponse, error) {
+func (m *mockTranscriber) Process(r domain.Request) (domain.Response, error) {
 	args := m.Called(r)
-	return args.Get(0).(domain.BotResponse), args.Error(1)
+	return args.Get(0).(domain.Response), args.Error(1)
 }
 
 func TestBot_Process(t *testing.T) {
 	type fields struct {
-		transcriber domain.Bot
+		transcriber domain.Processor
 	}
 	type args struct {
-		r domain.BotRequest
+		r domain.Request
 	}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    domain.BotResponse
+		want    domain.Response
 		wantErr bool
 	}{
 		{
@@ -40,14 +40,14 @@ func TestBot_Process(t *testing.T) {
 					return m
 				}(),
 			},
-			args: args{r: domain.BotRequest{
+			args: args{r: domain.Request{
 				User: domain.User{},
 				Message: domain.Message{
 					ID:     2,
 					ChatID: 3,
 				},
 			}},
-			want:    domain.BotResponse{},
+			want:    domain.Response{},
 			wantErr: true,
 		},
 		{
@@ -58,7 +58,7 @@ func TestBot_Process(t *testing.T) {
 					return m
 				}(),
 			},
-			args: args{r: domain.BotRequest{
+			args: args{r: domain.Request{
 				User: domain.User{
 					ID:   1,
 					Name: "test",
@@ -67,7 +67,7 @@ func TestBot_Process(t *testing.T) {
 					ChatID: 3,
 				},
 			}},
-			want:    domain.BotResponse{},
+			want:    domain.Response{},
 			wantErr: true,
 		},
 		{
@@ -78,7 +78,7 @@ func TestBot_Process(t *testing.T) {
 					return m
 				}(),
 			},
-			args: args{r: domain.BotRequest{
+			args: args{r: domain.Request{
 				User: domain.User{
 					ID:   1,
 					Name: "test",
@@ -87,7 +87,7 @@ func TestBot_Process(t *testing.T) {
 					ID: 2,
 				},
 			}},
-			want:    domain.BotResponse{},
+			want:    domain.Response{},
 			wantErr: true,
 		},
 		{
@@ -95,7 +95,7 @@ func TestBot_Process(t *testing.T) {
 			fields: fields{
 				transcriber: func() *mockTranscriber {
 					m := &mockTranscriber{}
-					m.On("Process", mock.Anything).Return(domain.BotResponse{
+					m.On("Process", mock.Anything).Return(domain.Response{
 						ChatID:  3,
 						ReplyTo: 2,
 						Text:    "test",
@@ -103,7 +103,7 @@ func TestBot_Process(t *testing.T) {
 					return m
 				}(),
 			},
-			args: args{r: domain.BotRequest{
+			args: args{r: domain.Request{
 				User: domain.User{
 					ID:   1,
 					Name: "test",
@@ -114,7 +114,7 @@ func TestBot_Process(t *testing.T) {
 					Voice:  make([]byte, 0),
 				},
 			}},
-			want: domain.BotResponse{
+			want: domain.Response{
 				ChatID:  3,
 				ReplyTo: 2,
 				Text:    "test",
@@ -125,7 +125,7 @@ func TestBot_Process(t *testing.T) {
 			fields: fields{
 				transcriber: func() *mockTranscriber {
 					m := &mockTranscriber{}
-					m.On("Process", mock.Anything).Return(domain.BotResponse{
+					m.On("Process", mock.Anything).Return(domain.Response{
 						ChatID:  3,
 						ReplyTo: 2,
 						Text:    "test",
@@ -133,7 +133,7 @@ func TestBot_Process(t *testing.T) {
 					return m
 				}(),
 			},
-			args: args{r: domain.BotRequest{
+			args: args{r: domain.Request{
 				User: domain.User{
 					ID:   1,
 					Name: "test",
@@ -144,7 +144,7 @@ func TestBot_Process(t *testing.T) {
 					VideoNote: make([]byte, 0),
 				},
 			}},
-			want: domain.BotResponse{
+			want: domain.Response{
 				ChatID:  3,
 				ReplyTo: 2,
 				Text:    "test",

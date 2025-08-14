@@ -1,5 +1,5 @@
 .idea
-models
+vosk-models
 *.wav
 .env
 *.mp4

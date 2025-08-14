@@ -1,7 +1,13 @@
 package domain
 
-type Bot interface {
-	Process(request BotRequest) (BotResponse, error)
+type Processor interface {
+	Process(request Request) (Response, error)
+}
+
+type Command interface {
+	Processor
+	Help() string
+	ReactOn() []string
 }
 
 type User struct {
@@ -16,14 +22,15 @@ type Message struct {
 	Text      string
 	Voice     []byte
 	VideoNote []byte
+	Command   string
 }
 
-type BotRequest struct {
+type Request struct {
 	User    User
 	Message Message
 }
 
-type BotResponse struct {
+type Response struct {
 	ChatID  int64
 	ReplyTo int64 // message id
 	Text    string

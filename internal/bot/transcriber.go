@@ -22,9 +22,9 @@ func NewTranscriber(model Model) *Transcriber {
 	}
 }
 
-func (v *Transcriber) Process(r domain.BotRequest) (domain.BotResponse, error) {
+func (v *Transcriber) Process(r domain.Request) (domain.Response, error) {
 	if r.Message.Voice == nil && r.Message.VideoNote == nil {
-		return domain.BotResponse{}, fmt.Errorf("voice and video note are empty")
+		return domain.Response{}, fmt.Errorf("voice and video note are empty")
 	}
 
 	var data []byte
@@ -37,19 +37,19 @@ func (v *Transcriber) Process(r domain.BotRequest) (domain.BotResponse, error) {
 
 	wav, err := ffmpegConvertToWav(data)
 	if err != nil {
-		return domain.BotResponse{}, fmt.Errorf("convert to wav: %w", err)
+		return domain.Response{}, fmt.Errorf("convert to wav: %w", err)
 	}
 
 	result, err := v.model.Transcribe(wav)
 	if err != nil {
-		return domain.BotResponse{}, fmt.Errorf("transcribe: %w", err)
+		return domain.Response{}, fmt.Errorf("transcribe: %w", err)
 	}
 
 	if len(result) == 0 {
-		return domain.BotResponse{}, fmt.Errorf("empty result")
+		return domain.Response{}, fmt.Errorf("empty result")
 	}
 
-	return domain.BotResponse{
+	return domain.Response{
 		ChatID:  r.Message.ChatID,
 		ReplyTo: r.Message.ID,
 		Text:    result,
