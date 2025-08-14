@@ -15,12 +15,12 @@ import (
 
 type Opts struct {
 	API *tgbotapi.BotAPI
-	Bot domain.Bot
+	Bot domain.Processor
 }
 
 type Listener struct {
 	api *tgbotapi.BotAPI
-	bot domain.Bot
+	bot domain.Processor
 }
 
 func NewListener(opts Opts) *Listener {
@@ -58,8 +58,8 @@ func (l *Listener) Run() {
 	}
 }
 
-func (l *Listener) parseUpdate(u tgbotapi.Update) (domain.BotRequest, error) {
-	r := domain.BotRequest{
+func (l *Listener) parseUpdate(u tgbotapi.Update) (domain.Request, error) {
+	r := domain.Request{
 		User: domain.User{
 			ID:   u.Message.From.ID,
 			Name: u.Message.From.UserName,
@@ -118,7 +118,7 @@ func downloadFile(url string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (l *Listener) sendResponse(r domain.BotResponse) error {
+func (l *Listener) sendResponse(r domain.Response) error {
 	if r.ChatID == 0 {
 		return nil
 	}

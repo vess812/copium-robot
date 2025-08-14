@@ -1,10 +1,12 @@
 services:
   app:
-    image: ghcr.io/vess812/copium-robot:latest
+    build:
+      dockerfile: Dockerfile
     container_name: app
     restart: unless-stopped
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       MODEL_PATH: ${MODEL_PATH}
+      GIGACHAT_API_KEY: ${GIGACHAT_API_KEY}
     volumes:
-      - /var/copium-robot/vosk-model-ru-0.42:/var/copium-robot/model
+      - ./models/vosk-model-ru-0.42:/var/copium-robot/model
